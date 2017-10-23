@@ -130,23 +130,40 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        f = gameState.generateSuccessor(0, gameState.getLegalActions()[0]).generateSuccessor(0, gameState.getLegalActions()[0]).getScore()
-        self.max(gameState, 0)
+        #f = gameState.generateSuccessor(0, gameState.getLegalActions()[0]).generateSuccessor(0, gameState.getLegalActions()[0]).getScore()
+        #self.max(gameState, 0)
+        #a = gameState.getNumAgents()
+        #return self.open(gameState, self.index, True)
 
-    def max(self, gameState, level):
-        if level == self.depth:
-            return None
-        results = []
+        print self.depth, gameState.getNumAgents()
+        value = -(float("inf"))
+        optimalAction = Directions.STOP
         for action in gameState.getLegalActions():
-            f = self.evaluationFunction(gameState)
-            test = "asd"
+            prevVal = value
+            value = max(value, self.minValue(gameState.generateSuccessor(0, action), gameState.getNumAgents(), self.depth))
+            if value > prevVal:
+                optimalAction = action
+        return optimalAction
 
-        pass
+    def maxValue(self, gameState, level):
+        if level == 0 or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        value = -(float("inf"))
+        for action in gameState.getLegalActions():
+            value = max(value, self.minValue(gameState.generateSuccessor(0, action), gameState.getNumAgents(), level - 1))
+        return value
 
-    def min(self, gameState, level):
-        if level == self.depth:
-            return None
-        pass
+    def minValue(self, gameState, agentIndex, level):
+        if level == 0 or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        value = (float("inf"))
+        for action in gameState.getLegalActions():
+            if agentIndex == 2:
+                value = min(value, self.maxValue(gameState.generateSuccessor(agentIndex, action), level - 1))
+            else:
+                value = min(value, self.minValue(gameState.generateSuccessor(agentIndex, action), agentIndex - 1, level - 1))
+        return value
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
